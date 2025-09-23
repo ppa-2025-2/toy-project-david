@@ -30,7 +30,6 @@ CREATE TABLE IF NOT EXISTS profiles (
 CREATE TABLE IF NOT EXISTS tickets (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     criador_id INT NOT NULL,
-    responsavel_id INT NOT NULL,
     destinatario_id INT NOT NULL,
     objeto VARCHAR(255) NOT NULL,
     acao VARCHAR(255) NOT NULL,
@@ -42,8 +41,6 @@ CREATE TABLE IF NOT EXISTS tickets (
     update_at TIMESTAMP DEFAULT current_timestamp NOT NULL,
     FOREIGN KEY (destinatario_id) REFERENCES users(id),
     FOREIGN KEY (criador_id) REFERENCES users(id)
-    FOREIGN KEY (responsavel_id) REFERENCES users(id)
-
 );
 
 CREATE TABLE IF NOT EXISTS observadores (
