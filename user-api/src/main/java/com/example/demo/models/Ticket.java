@@ -16,6 +16,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
@@ -92,13 +93,13 @@ public class Ticket {
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime updated_at;
 
-    // @ManyToMany(fetch = FetchType.EAGER)
-    // @JoinTable(
-    //     name = "observadores", 
-    //     joinColumns = @JoinColumn(name = "ticket_id")
-    // )
-
-    // private Set<User> observadores = new HashSet<>();
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "ticket_user", 
+        joinColumns = @JoinColumn(name="ticket_id"),
+        inverseJoinColumns = @JoinColumn(name="user_id")
+    )
+    private Set<User> observadores = new HashSet<>();
 
     public Integer getId() {
         return id;
@@ -188,12 +189,12 @@ public class Ticket {
         this.updated_at = updated_at;
     }
 
-    // public Set<User> getObservadores() {
-    //     return observadores;
-    // }
+    public Set<User> getObservadores() {
+        return observadores;
+    }
 
-    // public void setObservadores(Set<User> observadores) {
-    //     this.observadores = observadores;
-    // }
+    public void setObservadores(Set<User> observadores) {
+        this.observadores = observadores;
+    }
 
 }
