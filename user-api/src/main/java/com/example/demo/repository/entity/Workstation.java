@@ -1,5 +1,7 @@
 package com.example.demo.repository.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -20,6 +22,7 @@ public class Workstation extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "island_id")
+    @JsonBackReference
     private Island island;
 
     @ManyToOne

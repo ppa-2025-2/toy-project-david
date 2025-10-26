@@ -22,6 +22,6 @@ public interface IslandRepository
             FROM Island i JOIN i.workstations w
             WHERE w.user IS NULL
             """)
-    List<Island> findIslandWithAvailableWorkstations();
+    List<Island> findIslandsWithAvailableWorkstations();
 
 }

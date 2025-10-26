@@ -1,0 +1,45 @@
+package com.example.demo.controller;
+
+import java.util.Collection;
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.demo.application.IslandService;
+import com.example.demo.repository.entity.Island;
+
+@RestController
+@RequestMapping("api/v1/islands")
+public class IslandController {
+
+    private final IslandService islandService;
+
+    public IslandController(IslandService islandService) {
+        this.islandService = islandService;
+    }
+
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Island>> getAllIslands() {
+        return ResponseEntity.ok(islandService.getAllIslands());
+    }
+
+    @GetMapping(value = "/available", produces = MediaType.APPLICATION_JSON_VALUE) 
+    public ResponseEntity<List<Island>> getIslandsWithAvailableWorkstations() {
+        return ResponseEntity.ok(islandService.getIslandWithAvailableWorkstations());
+    }
+
+    @PostMapping("/allocate/{userId}")
+    @ResponseStatus(code = HttpStatus.OK)
+    public ResponseEntity<String> assignWorkstation(@PathVariable Integer userId) {
+        islandService.alocarWorkstationDisponivel(userId);
+        return ResponseEntity.ok("Workstation was successfully assigned to user with ID: " + userId);
+    }
+}

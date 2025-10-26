@@ -28,7 +28,7 @@ public class SeedRunner implements ApplicationRunner  {
 
         inserirIlhaWorkstation();
 
-        List<Island> islands = repo.findIslandWithAvailableWorkstations();
+        List<Island> islands = repo.findIslandsWithAvailableWorkstations();
 
         System.out.println("ISLANDS===========================");
         System.out.println(islands);
