@@ -1,8 +1,10 @@
 package com.example.demo.repository.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import java.util.Objects;
 
 import jakarta.persistence.Column;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -29,6 +31,25 @@ public class Workstation extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    
+    public boolean isAvailable() {
+        return user == null;
+    }
+
+    
+    public void assignUser(User user) {
+        if (!isAvailable()) {
+            throw new IllegalStateException("Workstation " + this.id + " já está ocupada");
+        }
+        this.user = user;
+    }
+
+    
+    public void releaseUser() {
+        this.user = null;
+    }
+
+    
     public User getUser() {
         return user;
     }
@@ -63,40 +84,29 @@ public class Workstation extends BaseEntity {
 
     @Override
     public String toString() {
-        return "Workstation [createdAt=" + createdAt
-            + ", updatedAt=" + updatedAt
-            + ", id=" + id
-            + ", specs=" + specs    
-            + ", island=" + island
-            + "]";
+        return "Workstation{" +
+                "id='" + id + '\'' +
+                ", specs='" + specs + '\'' +
+                ", islandId=" + (island != null ? island.getId() : "null") +
+                ", userId=" + (user != null ? user.getId() : "null") +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        return result;
+        return Objects.hash(id);
     }
 
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
+        if (obj == null || getClass() != obj.getClass())
             return false;
         Workstation other = (Workstation) obj;
-        if (id == null) {
-            if (other.id != null)
-                return false;
-        } else if (!id.equals(other.id))
-            return false;
-        return true;
+        // Entities are equal if their business keys ('id') are equal and not null.
+        return id != null && id.equals(other.id);
     }
-
-    // equals e o hashCode
-    // CTRL+P, CTRL+SHIFT+P, CTRL+ESPAÇO, CTRL+. (code assist)
-    
 }

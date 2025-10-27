@@ -33,13 +33,13 @@ public class IslandController {
 
     @GetMapping(value = "/available", produces = MediaType.APPLICATION_JSON_VALUE) 
     public ResponseEntity<List<Island>> getIslandsWithAvailableWorkstations() {
-        return ResponseEntity.ok(islandService.getIslandWithAvailableWorkstations());
+        return ResponseEntity.ok(islandService.getIslandsWithAvailableWorkstations());
     }
 
     @PostMapping("/allocate/{userId}")
     @ResponseStatus(code = HttpStatus.OK)
     public ResponseEntity<String> assignWorkstation(@PathVariable Integer userId) {
-        islandService.alocarWorkstationDisponivel(userId);
+        islandService.allocateAvailableWorkstation(userId);
         return ResponseEntity.ok("Workstation was successfully assigned to user with ID: " + userId);
     }
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.repository.IslandRepository;
 import com.example.demo.repository.entity.Island;
@@ -22,6 +23,7 @@ public class SeedRunner implements ApplicationRunner  {
     }
 
     @Override
+    @Transactional
     public void run(ApplicationArguments args) throws Exception {
 
         System.out.println("SEMEANDO ----------- \n\n\n");

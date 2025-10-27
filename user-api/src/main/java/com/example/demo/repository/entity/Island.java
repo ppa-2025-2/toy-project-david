@@ -5,6 +5,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,23 +19,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
-// one-to-one (um-para-um)
-// one-to-many or many-to-one
-// relationship owner (proprietário do relacionamento)
-
-// many-to-many
-// exigir uma tabela associativa
-
 @Entity
 @Table(name = "islands")
 public class Island extends BaseEntity {
 
     public enum Disposition {
-        PAIR(2), // 0
-        TRIANGLE(3), // 1
-        SQUARE(4), // 2
-        RECTANGLE(6), // 3
-        CIRCULAR(8); // 4
+        PAIR(2),
+        TRIANGLE(3),
+        SQUARE(4),
+        RECTANGLE(6),
+        CIRCULAR(8);
 
         private final int placements;
         
@@ -48,7 +43,6 @@ public class Island extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    // @Column(nullable = false)
     private Long id;
 
     @Column(name = "content", nullable = false)
@@ -61,12 +55,59 @@ public class Island extends BaseEntity {
     @OneToMany(mappedBy = "island", 
         cascade = CascadeType.ALL,
         fetch = FetchType.LAZY,
-        orphanRemoval = true)
+        orphanRemoval = true)    
+    @JsonManagedReference
     private Set<Workstation> workstations = new HashSet<>();
 
-    public void removeWorkstations(Predicate<Workstation> predicate) {
-        this.workstations.removeIf(predicate);
+    
+    public void addWorkstation(Workstation workstation) {
+        workstations.add(workstation);
+        workstation.setIsland(this);
     }
+
+    public void removeWorkstation(Workstation workstation) {
+        workstations.remove(workstation);
+        workstation.setIsland(null);
+    }
+
+   
+    public Optional<Workstation> firstAvailableWorkstation() {
+        return this.workstations.stream()
+            .filter(Workstation::isAvailable)
+            .findFirst();
+    }
+
+    public void assignUserToAvailableWorkstation(User user) {
+        firstAvailableWorkstation()
+            .ifPresentOrElse(
+                ws -> ws.assignUser(user),
+                () -> {
+                    throw new IllegalStateException("No workstation available in island with ID: " + this.id);
+                }
+            );
+    }
+
+    
+    public long countOccupiedWorkstations() {
+        return workstations.stream()
+            .filter(ws -> !ws.isAvailable())
+            .count();
+    }
+
+    
+    public long countAvailableWorkstations() {
+        return workstations.stream()
+            .filter(Workstation::isAvailable)
+            .count();
+    }
+
+    
+    public boolean hasAvailableWorkstations() {
+        // Use anyMatch for performance. It stops searching as soon as a match is found.
+        return workstations.stream().anyMatch(Workstation::isAvailable);
+    }
+
+   
 
     public Set<Workstation> getWorkstations() {
         return workstations;
@@ -100,28 +141,14 @@ public class Island extends BaseEntity {
         this.disposition = disposition;
     }
 
-
-
+   
     @Override
     public String toString() {
-        return "Island [id=" + id 
-        + ", description=" + description 
-        + ", disposition=" + disposition 
-        + ", createdAt=" + createdAt 
-        + ", updatedAt=" + updatedAt 
-        + "]";
+        return "Island{" +
+                "id=" + id +
+                ", description='" + description + '\'' +
+                ", disposition=" + disposition +
+                ", workstationCount=" + (workstations != null ? workstations.size() : 0) +
+                '}';
     }
-
-    public Optional<Workstation> firstAvailableWorkstation() {
-        return this.workstations.stream()
-            .filter(w -> w.getUser() == null)
-            .findFirst();
-    }
-
-    public void assignUserToTheFirstWorkstationAvailable(User user) {
-        firstAvailableWorkstation()
-                .ifPresent(w -> w.setUser(user));
-    }
-
-    
 }
