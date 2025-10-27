@@ -5,6 +5,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -62,6 +64,7 @@ public class Island extends BaseEntity {
         cascade = CascadeType.ALL,
         fetch = FetchType.LAZY,
         orphanRemoval = true)
+    @JsonManagedReference
     private Set<Workstation> workstations = new HashSet<>();
 
     public void removeWorkstations(Predicate<Workstation> predicate) {
@@ -105,12 +108,10 @@ public class Island extends BaseEntity {
     @Override
     public String toString() {
         return "Island [id=" + id 
-        + ", description=" + description 
-        + ", disposition=" + disposition 
-        + ", createdAt=" + createdAt 
-        + ", updatedAt=" + updatedAt 
-        + "]";
+                + ", description=" + description 
+                + ", disposition=" + disposition + "]";
     }
+
 
     public Optional<Workstation> firstAvailableWorkstation() {
         return this.workstations.stream()
@@ -118,10 +119,22 @@ public class Island extends BaseEntity {
             .findFirst();
     }
 
-    public void assignUserToTheFirstWorkstationAvailable(User user) {
+    public void assignUserToAvailableWorkstation(User user) {
         firstAvailableWorkstation()
                 .ifPresent(w -> w.setUser(user));
     }
 
-    
+    public long countWorkstations() {
+        return this.workstations.size();
+    }
+
+    public long countOccupiedWorkstations() {
+        return this.workstations.stream()
+            .filter(w -> w.getUser() != null)
+            .count();
+    }
+
+    public boolean isAvailable() {
+        return countWorkstations() > countOccupiedWorkstations();
+    }
 }
